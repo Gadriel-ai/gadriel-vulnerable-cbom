@@ -1,0 +1,7 @@
+# Generated scan output -- regenerate with `gadriel code cbom .` /
+# `gadriel code report --format html`. Not committed so results never
+# go stale relative to the fixtures or the gadriel version used.
+.security/
+
+# OS noise
+.DS_Store

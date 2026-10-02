@@ -1,0 +1,58 @@
+# D-14 context overlay — ADR-241 §12 D-14/D-16.
+#
+# Keyed by CryptoAsset::bom_ref(), which for an Algorithm asset is
+# purely `crypto/algorithm/<name>` (content-addressed by NAME ONLY —
+# see gadriel-crypto-inventory/src/model.rs's AlgorithmAsset::bom_ref).
+# That means every occurrence of the same algorithm name anywhere in
+# this repo — across every tier, every arm, every file — collapses
+# into ONE CBOM component, and an overlay entry here scores that one
+# shared component, not a single file. This is real gadriel behavior,
+# not a quirk of this test repo; see docs/EXPECTED-FINDINGS.md's
+# "cross-arm correlation" section for exactly which occurrences land
+# on each bom_ref below.
+#
+# Three deliberately different outcomes, so a scan of this repo
+# exercises the full D-16 tier-1/2/3 banding AND the Mosca exposure
+# check in both directions:
+
+assets:
+  # RSA-2048 appears as: tier-1's rsa2048_private_unencrypted.pem,
+  # every cert-chain key, tier-6's business_critical_root_signing_key.pem,
+  # and tier-3's AWS KMS customer_master_key_spec = "RSA_2048". A
+  # complete, high-urgency entry -> equal-weighted average
+  # (5+5+5+4)/4 = 4.75 -> Tier 1 (>= 4.0). Mosca: migration_time(8) >
+  # protection_horizon(5) -> EXPOSED.
+  "crypto/algorithm/RSA-2048":
+    sensitivity: 5
+    lifecycle_pressure: 5
+    regulatory_exposure: 5
+    migration_complexity: 4
+    protection_horizon_years: 5
+    migration_time_years: 8
+    business_service: "payments-signing"
+    system_owner: "platform-security@vuln-by-design.test"
+
+  # Ed25519 appears as: tier-1's ed25519_private.pem (A1), tier-2's
+  # Go ed25519.GenerateKey call (A2), and tier-3's sshd_config
+  # ssh-ed25519 HostKeyAlgorithms entry (A3) — three arms, one
+  # component. Low-urgency entry -> (2+2+1+2)/4 = 1.75 -> Tier 3
+  # (< 2.5). Mosca: migration_time(2) <= protection_horizon(10) ->
+  # NOT exposed.
+  "crypto/algorithm/Ed25519":
+    sensitivity: 2
+    lifecycle_pressure: 2
+    regulatory_exposure: 1
+    migration_complexity: 2
+    protection_horizon_years: 10
+    migration_time_years: 2
+    business_service: "internal-tooling"
+    system_owner: "platform-security@vuln-by-design.test"
+
+  # RSA-3072 (tier-6's rsa3072_partial_overlay_key.pem) gets only
+  # `sensitivity` — deliberately incomplete. D-16's own rule: a
+  # partial entry must NEVER guess the other three factors, so this
+  # asset stays `QuantumVulnerableUnscored`, not Tier 2/3. This is the
+  # one entry in this file that is supposed to produce no tier change
+  # at all — see EXPECTED-FINDINGS.md.
+  "crypto/algorithm/RSA-3072":
+    sensitivity: 5

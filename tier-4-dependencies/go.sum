@@ -1,0 +1,6 @@
+golang.org/x/crypto v0.21.0 h1:aAcY1placeholderhashvalueaaaaaaaaaaaaaaaaaaaaaaaaaa=
+golang.org/x/crypto v0.21.0/go.mod h1:bBcZ1placeholderhashvaluebbbbbbbbbbbbbbbbbbbbbbbb=
+github.com/golang-jwt/jwt/v5 v5.2.1 h1:cCdY1placeholderhashvalueccccccccccccccccccccccccc=
+github.com/golang-jwt/jwt/v5 v5.2.1/go.mod h1:dDeW1placeholderhashvaluedddddddddddddddddddddddd=
+github.com/spf13/cobra v1.8.0 h1:eEfX1placeholderhashvalueeeeeeeeeeeeeeeeeeeeeeeeee=
+github.com/spf13/cobra v1.8.0/go.mod h1:fFgY1placeholderhashvaluefffffffffffffffffffffffff=

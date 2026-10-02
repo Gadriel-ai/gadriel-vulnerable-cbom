@@ -1,0 +1,23 @@
+# Deliberately vulnerable-by-design A3 (SSH) fixture -- mixes legacy
+# weak algorithms with modern/strong and PQC ones so a scan exercises
+# every branch of protocol_scan.rs's ssh_algo_asset table.
+
+# Weak: SHA-1-based group-1 key exchange.
+KexAlgorithms diffie-hellman-group1-sha1,curve25519-sha256
+
+# Weak: 3DES-CBC and RC4 (arcfour) ciphers alongside a strong AEAD one.
+Ciphers 3des-cbc,arcfour,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com
+
+# Weak: plain HMAC-SHA1 alongside strong SHA-2 MACs.
+MACs hmac-sha1,hmac-sha2-256,hmac-sha2-512
+
+# Weak: ssh-rsa as a host-key algorithm (signature, quantum-vulnerable
+# at the policy layer) alongside strong Ed25519/ECDSA.
+HostKeyAlgorithms ssh-rsa,ssh-ed25519,ecdsa-sha2-nistp256
+
+# Post-quantum hybrid key exchange (OpenSSH 10 default) -- Monitor
+# tier, not quantum-vulnerable.
+KexAlgorithms mlkem768x25519-sha256
+
+# This line is commented out and must NOT be read (scanner skips '#').
+# KexAlgorithms diffie-hellman-group1-sha1
