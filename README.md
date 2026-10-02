@@ -1,15 +1,39 @@
 # gadriel-vulnerable-cbom
 
-A **vulnerable-by-design** test repository for `gadriel`'s ADR-241
-cryptographic asset discovery and CycloneDX CBOM feature — the crypto
-equivalent of BenchmarkJava/DVWA/WebGoat, but for the four discovery
-arms (A1 material, A2 source-API, A3 protocol/config, A4 library), the
-D-6 policy findings, and the D-14/D-16 context-overlay tier scoring.
+A **vulnerable-by-design** reference corpus for discovering
+quantum-vulnerable and classically-weak cryptographic assets — keys,
+certificates, protocol/config settings, and dependencies — and for
+testing whether a tool can build an accurate CycloneDX CBOM
+(Cryptography Bill of Materials) from a real checkout. It follows the
+same vulnerable-by-design methodology as
+[OWASP WebGoat](https://owasp.org/www-project-webgoat/),
+[OWASP Benchmark](https://owasp.org/www-project-benchmark/), and
+[DVWA](https://dvwa.co.uk/): realistic, deliberately-vulnerable
+fixtures with a published, reproducible ground truth, organized by
+difficulty tier.
 
-Every fixture in this repo is grounded directly in `gadriel`'s real
-detection logic (read from source, not guessed) so a scan against this
-repo produces known, reproducible, explainable results — not "probably
-detects something."
+This repo was built against, and is validated against,
+[`gadriel`](https://github.com/Gadriel-ai)'s ADR-241 cryptographic
+asset discovery feature (the four discovery arms — A1 material, A2
+source-API, A3 protocol/config, A4 library — plus its policy findings
+and context-overlay tier scoring). The fixtures and ground truth are
+written in tool-agnostic terms (algorithm names, standard file
+formats, CycloneDX's own vocabulary) wherever possible, so any
+CBOM-capable tool can be scored against it, not only `gadriel`.
+
+Every fixture is grounded in real detection logic read from source
+(not guessed) so a scan against this repo produces known,
+reproducible, explainable results — not "probably detects something."
+
+## ⚠️ All cryptographic material here is synthetic
+
+Every key and certificate in this repository was generated solely for
+this benchmark, using placeholder/example subjects, and has never
+protected any real system, account, or data. Nothing here is a leaked
+real-world credential. If you build automated secret-scanning against
+this repo (or scan it with one), do not report findings here to any
+responsible-disclosure program — there is nothing to disclose; that's
+the point of the repo.
 
 ## Why this exists
 
@@ -31,6 +55,7 @@ what comes out to what's documented here.
 | 5 — `tier-5-composite-and-chains/` | Cross-cutting | A 3-level certificate chain (root CA → intermediate → leaf) to exercise A1 M4 chain-of-trust linking, plus deliberate placement under `vendor/`, `examples/`, `tests/`, and `dev/certs/` paths to exercise `Scope` tagging (`Vendored`/`Example`/`Test`) |
 | 6 — `tier-6-overlay-scored/` | D-14/D-16 | A real `.gadriel/crypto-overlay.yaml` driving Tier 1, Tier 2 (via tier-3's own RSA-2048 KMS reference — see below), Tier 3, a Mosca-exposed case, a Mosca-not-exposed case, and a **partial** overlay entry that must stay unscored |
 | 7 — `tier-7-negative-controls/` | False-positive guard | Strong/current algorithms only (AES-GCM, SHA-256+, Ed25519/Ed448/P-384, Argon2) across Java/Python/config/deps — must produce zero classically-weak findings |
+| 8 — `tier-8-unlabeled/` | **Blind, held-out** | Deliberately undocumented. No README, no inline comments, no entry in `docs/EXPECTED-FINDINGS.md`. Exists so a tool's coverage of this corpus can be reported honestly instead of tuned against a published answer key — see [`docs/blind-tier.md`](docs/blind-tier.md) for why it exists and the ground-truth disclosure policy (the answers themselves are not in that file either) |
 
 ## The one fact that governs how to read results
 
@@ -78,6 +103,15 @@ assertions in `docs/EXPECTED-FINDINGS.md` (tier counts, specific
 algorithm presence, specific policy findings) against the real
 `.security/cbom.cyclonedx.json` and `.security/cbom-summary.json`
 output. Exits non-zero and prints every failed assertion.
+
+## Further reading
+
+- [`docs/taxonomy.md`](docs/taxonomy.md) — every vulnerability category in this corpus, mapped to NIST/CycloneDX vocabulary
+- [`docs/quantum-readiness.md`](docs/quantum-readiness.md) — Mosca's theorem, harvest-now-decrypt-later, NIST FIPS 203/204/205, and why "found a key" isn't the same question as "how urgently must it migrate"
+- [`docs/overlay-context.md`](docs/overlay-context.md) — how business-context overlay data turns an unscored quantum-vulnerable asset into a ranked Tier 1/2/3 migration priority
+- [`docs/scoring.md`](docs/scoring.md) — the precision/recall method, worked example, and how to score a tool that isn't `gadriel`
+- [`docs/blind-tier.md`](docs/blind-tier.md) — why tier 8 has no published answer key, and how to request a score against it
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — how to add a fixture or report a corpus defect
 
 ## What this repo deliberately does NOT claim
 
